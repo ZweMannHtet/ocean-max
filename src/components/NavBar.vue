@@ -6,25 +6,96 @@
           <img src="\ocean-max-logo.png" alt="ocean-max" />
         </div>
         <div class="bound"></div>
-        <div class="logo-name">
+        <div class="logo-name" @click="goHome">
           <a href="" class="company-name">Ocean Max</a>
           <a href="" class="location">In Myanmar</a>
         </div>
       </div>
       <div class="nav-links">
         <ul class="main-menu">
-          <li><router-link to="/">Properties</router-link></li>
-          <li><router-link to="/">Commerical</router-link></li>
-          <li><router-link to="/">Agents</router-link></li>
-          <li><router-link to="/">Our Services</router-link></li>
-          <li><router-link to="/">About Us</router-link></li>
+          <li>
+            <div>
+              <a @mouseover="showPropertiesMenu">Properties</a>
+              <font-awesome-icon
+                :icon="['fas', 'chevron-down']"
+                class="drop-down"
+              />
+            </div>
+            <div class="sub-menu" v-if="showProperties">
+              <ul>
+                <li>
+                  <router-link to="/">Properties for Rent</router-link>
+                </li>
+                <li>
+                  <router-link to="/">Properties for Sale</router-link>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li><router-link :to="{ name: 'Agents' }">Agents</router-link></li>
+          <li>
+            <router-link :to="{ name: 'Services' }">Our Services</router-link>
+          </li>
+          <li>
+            <div>
+              <a @mouseover="showCommericalMenu">Commerical</a>
+              <font-awesome-icon
+                :icon="['fas', 'chevron-down']"
+                class="drop-down"
+              />
+            </div>
+            <div class="sub-menu" v-if="showCommerical">
+              <ul>
+                <li><router-link to="/">Commerical for Rent</router-link></li>
+                <li><router-link to="/">Commerical for Sale</router-link></li>
+              </ul>
+            </div>
+          </li>
+          <li><router-link :to="{ name: 'About' }">About Us</router-link></li>
         </ul>
       </div>
     </div>
   </nav>
 </template>
 
-<script setup></script>
+<script setup>
+import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted } from "vue";
+
+let route = useRouter();
+let showProperties = ref(false);
+let showCommerical = ref(false);
+
+const showPropertiesMenu = () => {
+  showProperties.value = true;
+  showCommerical.value = false;
+};
+
+const showCommericalMenu = () => {
+  showCommerical.value = true;
+  showProperties.value = false;
+};
+
+const closeMenu = (event) => {
+  const nav = document.querySelector("nav");
+
+  if (nav && !nav.contains(event.target)) {
+    showProperties.value = false;
+    showCommerical.value = false;
+  }
+};
+onMounted(() => {
+  document.addEventListener("click", closeMenu);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", closeMenu);
+});
+
+let goHome = () => {
+  route.push("/");
+};
+</script>
 
 <style scoped>
 nav {
@@ -66,6 +137,9 @@ nav {
   display: flex;
   flex-direction: column;
 }
+.logo-name p {
+  text-decoration: none;
+}
 .logo-name .company-name {
   font-family: "Raleway", sans-serif;
   color: #fff;
@@ -90,6 +164,42 @@ img {
   display: inline-flex;
   height: 100%;
 }
+.drop-down {
+  text-align: center;
+  color: #fff;
+  margin-left: 5px;
+  transition: all 0.5s ease;
+}
+.main-menu li:hover .drop-down {
+  transform: rotate(180deg);
+}
+.sub-menu {
+  position: absolute;
+  top: 100px;
+  right: 10px;
+  background: #052820;
+  line-height: 20px;
+  border-radius: 5px;
+  transition: all 0.5 ease-in-out;
+}
+.sub-menu::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  background: #052820;
+  right: 10px;
+  top: -5px;
+  transform: rotate(45deg);
+}
+.sub-menu li {
+  width: 220px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .main-menu li {
   position: relative;
   list-style: none;
@@ -97,7 +207,7 @@ img {
   margin: auto 10px;
   height: 100%;
 }
-li .router-link-exact-active {
+li a {
   text-decoration: none;
   color: #fff;
   text-transform: uppercase;
@@ -106,6 +216,9 @@ li .router-link-exact-active {
 }
 li .router-link-exact-active:hover {
   color: rgba(255, 255, 255, 0.5);
+}
+.sub-menu li::before {
+  border-bottom: none;
 }
 li::before {
   content: "";
